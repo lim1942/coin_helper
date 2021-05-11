@@ -1,0 +1,1 @@
+default_app_config = 'coin_spider.apps.CoinSpiderConfig'
