@@ -15,27 +15,24 @@ class OkexKlineHistorySpider(InstrumentIdSpider):
     start_end_hours = (batch_cnt * granularity) / 3600
     instrument_ids = ["BTC-USDT", "ETH-USDT", "LTC-USDT", "ETC-USDT", "XRP-USDT", "EOS-USDT", "BCH-USDT", "BSV-USDT", "TRX-USDT",]
 
-    @classmethod
-    def crawl(cls,instrument_id):
-        db_obj = cls.db({"instrument_id":instrument_id})
-        db_obj.prepare_for_insert()
+    def crawl(self):
         start = datetime.now() - timedelta(hours=TZ_HOUR)
-        finally_end = start - timedelta(days=cls.interval_days)
-        url = f'https://www.okex.win/api/spot/v3/instruments/{instrument_id}/history/candles'
+        finally_end = start - timedelta(days=self.interval_days)
+        url = f'https://www.okex.win/api/spot/v3/instruments/{self.instrument_id}/history/candles'
         while True:
             try:
-                end = start - timedelta(hours=cls.start_end_hours)
+                end = start - timedelta(hours=self.start_end_hours)
                 start_date = start.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
                 end_date = end.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
                 params = {
                     'start':start_date,
                     'end':end_date,
-                    'granularity':cls.granularity
+                    'granularity':self.granularity
                 }
-                resp = cls.download(url,params=params)
-                values = [cls.db.get_value_by_item(item) for item in resp.json()]
-                db_obj.save_values(values)
-                print(instrument_id,end_date,'>>>',finally_end)
+                resp = self.download(url,params=params)
+                values = [self.db_obj.get_value_by_item(item) for item in resp.json()]
+                self.db_obj.save_values(values)
+                print(self.instrument_id,end_date,'>>>',finally_end)
                 start = end
                 if end <= finally_end:
                     break

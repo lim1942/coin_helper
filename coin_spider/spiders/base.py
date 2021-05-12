@@ -33,9 +33,9 @@ class BaseWebsocket(metaclass=ImportDbMeta):
     def __init__(self,**kwargs):
         self.kwargs = kwargs
         self.db_obj = self.db()
+        self.db_obj.prepare_for_insert()
         self.ws = websocket.WebSocketApp(self.url,header=self.header,on_open= self.on_open,on_message=self.on_message,
                                          on_error=self.on_error,on_close=self.on_close,on_pong=self.on_pong,cookie=self.cookie)
-
     def on_error(self,ws, error):
         logger('spider',self.__class__.__name__,'on_error','error',error.__class__.__name__ + '-'+str(error))
 
@@ -86,7 +86,6 @@ class OkexWebsocket(BaseWebsocket):
         return json.loads(inflated.decode())
 
     def run(self):
-        self.db_obj.prepare_for_insert()
         while 1:
             try:
                 self.message_cnt = 0
@@ -97,27 +96,22 @@ class OkexWebsocket(BaseWebsocket):
 
 
 class BaseSpider(metaclass=ImportDbMeta):
-    timeout = 3
     db = None
+    timeout = 3
+
+    def __init__(self,**kwargs):
+        self.kwargs = kwargs
+        self.db_obj = self.db(**kwargs)
+        self.db_obj.prepare_for_insert()
+
+    def crawl(self):
+        raise NotImplementedError
 
     @classmethod
     def download(cls,url,meth='get',**kwargs):
         resp = requests.request(meth,url=url,timeout=cls.timeout,**kwargs)
         resp.encoding = 'utf-8'
         return resp
-
-    @classmethod
-    def retry_download(cls,url,meth='get',retry=3,**kwargs):
-        for r in range(retry):
-            try:
-                return cls.download(url,meth,**kwargs)
-            except Exception as e:
-                pass
-        raise e
-
-    @classmethod
-    def crawl(cls,*args,**kwargs):
-        pass
 
     @classmethod
     def execute(cls):
@@ -127,12 +121,17 @@ class BaseSpider(metaclass=ImportDbMeta):
 class InstrumentIdSpider(BaseSpider):
     instrument_ids = []
 
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.instrument_id = kwargs['instrument_id']
+
     @classmethod
     def execute(cls):
         while True:
             threads = list()
             for instrument_id in cls.instrument_ids:
-                thread = Thread(target=cls.crawl,args=(instrument_id,))
+                obj = cls(instrument_id=instrument_id)
+                thread = Thread(target=obj.crawl)
                 thread.start()
                 threads.append(thread)
             for thread in threads:
@@ -143,8 +142,10 @@ class InstrumentIdSpider(BaseSpider):
 
 class DateSplitSpider(BaseSpider):
     work_num = 1
+
     @classmethod
     def execute(cls):
+        obj = cls()
         for _ in range(cls.work_num):
-            thread = Thread(target=cls.crawl)
+            thread = Thread(target=obj.crawl)
             thread.start()

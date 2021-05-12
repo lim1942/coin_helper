@@ -53,8 +53,8 @@ class BaseMysql(metaclass=BaseMysqlMeta):
             item[field] = datetime.strptime(item[field],format) + timedelta(hours=tz_hour)
         return tuple(item[k] for k in cls.insert_fields)
 
-    def __init__(self,kwargs=None):
-        self.kwargs = kwargs or {}
+    def __init__(self,**kwargs):
+        self.kwargs = kwargs
         self.do_connect()
 
     # 连接数据库，获取连接对象
@@ -133,15 +133,14 @@ class BaseMysql(metaclass=BaseMysqlMeta):
                 logger('db',self.__class__.__name__,'re_connect_execute','error',traceback.format_exc())
 
 
-
 class InstrumentIdMysql(BaseMysql):
     """不分表，一个对象根据 instrument_id 创建一张表"""
-    def __init__(self,kwargs):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
         self.instrument_id = kwargs['instrument_id']
         self.table_name = f"{self.table_prefix}_{self.instrument_id.replace('-','_')}"
         self.table_sql = self.table_sql.replace('table_name',self.table_name)
         self.insert_sql = self.insert_sql.replace('table_name',self.table_name)
-        super().__init__(kwargs)
 
     def create_tables(self):
         self.re_connect_execute(self.table_sql,None)
@@ -166,8 +165,8 @@ class DateSplitMysql(BaseMysql):
     # 批量插入数量
     demons_save_value_size = 200
 
-    def __init__(self,kwargs=None):
-        super().__init__(kwargs)
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
         self.async_save_queue = Queue()
 
     def get_table_name_by_date(self,datetime):
