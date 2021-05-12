@@ -32,7 +32,7 @@ class BaseWebsocket(metaclass=ImportDbMeta):
 
     def __init__(self,**kwargs):
         self.kwargs = kwargs
-        self.db_obj = self.db()
+        self.db_obj = self.db(**kwargs)
         self.db_obj.prepare_for_insert()
         self.ws = websocket.WebSocketApp(self.url,header=self.header,on_open= self.on_open,on_message=self.on_message,
                                          on_error=self.on_error,on_close=self.on_close,on_pong=self.on_pong,cookie=self.cookie)
