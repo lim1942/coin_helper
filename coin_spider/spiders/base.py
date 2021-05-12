@@ -8,13 +8,13 @@ import base64
 import hashlib
 import requests
 import websocket
+websocket.enableTrace(True)
 import traceback
 from threading import Thread
 from coin_db import get_db_by_name
 from tools import logger
 
 
-# 元类自动导入数据库模块
 class ImportDbMeta(type):
     def __new__(cls, *args, **kwargs):
         new_cls = type.__new__(cls, *args, **kwargs)
@@ -26,13 +26,16 @@ class ImportDbMeta(type):
 class BaseWebsocket(metaclass=ImportDbMeta):
     db = None
     url = None
-    run_kwargs = {'sslopt':{"cert_reqs": ssl.CERT_NONE},'http_proxy_host':'127.0.0.1','http_proxy_port':3080,'ping_interval':5}
+    header = {}
+    cookie = None
+    run_kwargs = {'sslopt':{"cert_reqs": ssl.CERT_NONE},'http_proxy_host':'127.0.0.1','http_proxy_port':3080,'ping_interval':5,'ping_timeout':4}
 
     def __init__(self,**kwargs):
+        self.kwargs = kwargs
         self.db_obj = self.db()
-        websocket.enableTrace(True)
-        self.ws = websocket.WebSocketApp(self.url,on_open= self.on_open,on_message=self.on_message,
-                                         on_error=self.on_error,on_close=self.on_close,)
+        self.ws = websocket.WebSocketApp(self.url,header=self.header,on_open= self.on_open,on_message=self.on_message,
+                                         on_error=self.on_error,on_close=self.on_close,on_pong=self.on_pong,cookie=self.cookie)
+
     def on_error(self,ws, error):
         logger('spider',self.__class__.__name__,'on_error','error',error.__class__.__name__ + '-'+str(error))
 
@@ -45,6 +48,12 @@ class BaseWebsocket(metaclass=ImportDbMeta):
     def on_open(self,ws):
         print("### open ###")
 
+    def on_ping(self,ws,frame_data):
+        print("ping:",frame_data)
+
+    def on_pong(self,ws,frame_data):
+        print("pong:",frame_data)
+
     def run(self):
         self.ws.run_forever(**self.run_kwargs,)
 
@@ -54,20 +63,20 @@ class OkexWebsocket(BaseWebsocket):
     on_open_message = None
     url = "wss://real.okex.com:8443/ws/v3"
 
-    def subscribe(self,ws,args):
-        open_msg = {"op": "subscribe", "args": args}
-        ws.send(json.dumps(open_msg).encode())
+    def subscribe(self):
+        open_msg = {"op": "subscribe", "args": self.on_open_message}
+        self.ws.send(json.dumps(open_msg).encode())
 
-    def login(self,ws,key,passphrase,secret):
+    def login(self,key,passphrase,secret):
         timestamp = str(time.time())
         msg = timestamp + "GET" + "/users/self/verify"
         sign = hmac.new(secret.encode('utf-8'), msg.encode('utf-8'), digestmod=hashlib.sha256).digest()
         sign = base64.b64encode(sign).decode('utf-8')
         data = {"op": "login", "args":[key, passphrase, timestamp, sign]}
-        ws.send_msg(data)
+        self.ws.send(data)
 
     def on_open(self,ws):
-        self.subscribe(ws,self.on_open_message)
+        self.subscribe()
 
     def on_message(self,ws,message):
         self.message_cnt += 1
