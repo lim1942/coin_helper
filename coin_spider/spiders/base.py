@@ -142,6 +142,7 @@ class InstrumentIdSpider(BaseSpider):
 
 class DateSplitSpider(BaseSpider):
     work_num = 1
+    instrument_ids = []
 
     @classmethod
     def execute(cls):
