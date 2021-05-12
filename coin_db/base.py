@@ -144,7 +144,7 @@ class InstrumentIdMysql(BaseMysql):
         super().__init__(kwargs)
 
     def create_tables(self):
-        self.re_connect_execute(self.table_sql,[])
+        self.re_connect_execute(self.table_sql,None)
 
     def save_values(self,values):
         self.re_connect_execute(self.insert_sql,values)
@@ -177,7 +177,7 @@ class DateSplitMysql(BaseMysql):
         now = datetime.now()
         for date in [now,now+timedelta(days=1)]:
             date_table_sql = self.table_sql.replace('table_name',self.get_table_name_by_date(date))
-            self.re_connect_execute(date_table_sql,[])
+            self.re_connect_execute(date_table_sql,None)
 
     def save_item(self,item):
         value = self.get_value_by_item(item)

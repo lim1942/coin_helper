@@ -30,5 +30,5 @@ class OkexTradeMysql(DateSplitMysql):
 
 if __name__ == "__main__":
     obj = OkexTradeMysql()
-    # obj.create_tables()
+    obj.create_tables()
     print(obj.table_exists('trade_2021_04_28'))
