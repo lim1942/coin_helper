@@ -31,4 +31,4 @@ class OkexKlineHistoryMysql(InstrumentIdMysql):
 
 
 if __name__ == "__main__":
-    OkexKlineHistoryMysql({'instrument_id':'BTC-USDT'}).create_tables()
+    OkexKlineHistoryMysql(instrument_id='BTC-USDT').create_tables()

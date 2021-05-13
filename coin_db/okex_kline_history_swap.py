@@ -31,4 +31,4 @@ class OkexKlineHistorySwapMysql(InstrumentIdMysql):
 
 
 if __name__ == "__main__":
-    OkexKlineHistorySwapMysql({'instrument_id':'BTC-USDT'}).create_tables()
+    OkexKlineHistorySwapMysql(instrument_id='BTC-USDT').create_tables()
