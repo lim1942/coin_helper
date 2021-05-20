@@ -6,7 +6,7 @@ import MySQLdb.cursors
 from queue import Queue
 from threading import Thread
 from datetime import datetime, timedelta
-from tools import logger
+from common.tools import logger
 
 
 class BaseMysqlMeta(type):

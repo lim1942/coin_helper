@@ -12,7 +12,8 @@ websocket.enableTrace(True)
 import traceback
 from threading import Thread
 from coin_db import get_db_by_name
-from tools import logger
+from common.tools import logger
+from common.monitor import OkexMonitor
 
 
 class ImportDbMeta(type):
@@ -61,6 +62,7 @@ class BaseWebsocket(metaclass=ImportDbMeta):
 class OkexWebsocket(BaseWebsocket):
     message_cnt = 0
     on_open_message = None
+    okex_monitor = OkexMonitor()
     url = "wss://real.okex.com:8443/ws/v3"
 
     def subscribe(self):

@@ -14,6 +14,8 @@ class OkexTrade(OkexWebsocket):
         data = super().on_message(ws,message)
         data = data.get('data',[])
         for item in data:
+            # 缓存最新价格到redis
+            self.okex_monitor.okex_record(item)
             self.total_cnt +=1
             self.db_obj.async_save_item(item)
             if item['instrument_id'] == 'BTC-USDT':

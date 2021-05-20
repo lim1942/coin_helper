@@ -16,10 +16,12 @@ class OkexTradeSwap(OkexWebsocket):
         data = super().on_message(ws,message)
         data = data.get('data',[])
         for item in data:
-            self.total_cnt +=1
+            # 缓存最新价格到redis
+            self.okex_monitor.okex_record(item)
+            self.okex_monitor.okex_compare_1(item)
             item['instrument_id'] = item['instrument_id'].replace('-SWAP','')
             self.db_obj.async_save_item(item)
-            if item['instrument_id'] == 'BTC-USD':
+            if item['instrument_id'].startswith('BTC-'):
                 self.cnt +=1
                 print(f"Message:{self.message_cnt} BTC:{self.cnt} Total:{self.total_cnt}",item)
 
