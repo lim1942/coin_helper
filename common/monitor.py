@@ -88,12 +88,14 @@ class OkexMonitor(Monitor):
 
     def okex_compare_1(self,item):
         """okex永续币本位，永续USDT 币币 三个市场两两对比"""
-        instrument_id = item['instrument_id']
-        if instrument_id.endswith('USDT-SWAP'):
-            self.compare(instrument_id,item['price'],item['instrument_id'].split('-')[0]+'-USDT')
-            self.compare(instrument_id,item['price'],item['instrument_id'].split('-')[0]+'-USD-SWAP')
-        # 币本位永续和币币比较
-        elif instrument_id.endswith('USD-SWAP'):
-            self.compare(instrument_id,item['price'],item['instrument_id'].split('-')[0]+'-USDT')
-
+        try:
+            instrument_id = item['instrument_id']
+            if instrument_id.endswith('USDT-SWAP'):
+                self.compare(instrument_id,item['price'],item['instrument_id'].split('-')[0]+'-USDT')
+                self.compare(instrument_id,item['price'],item['instrument_id'].split('-')[0]+'-USD-SWAP')
+            # 币本位永续和币币比较
+            elif instrument_id.endswith('USD-SWAP'):
+                self.compare(instrument_id,item['price'],item['instrument_id'].split('-')[0]+'-USDT')
+        except:
+            traceback.print_exc()
 
