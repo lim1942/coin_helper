@@ -27,7 +27,10 @@ class Monitor:
         self.long_before_time = datetime.now() - timedelta(days=1)
 
     def record(self,k,v,ex=10):
-        return self.redis_obj.set(k,v,ex)
+        try:
+            return self.redis_obj.set(k,v,ex)
+        except:
+            traceback.print_exc()
 
     def compare(self,k,v,k2):
         pass
