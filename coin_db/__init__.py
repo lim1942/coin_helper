@@ -13,5 +13,5 @@ def get_db_by_name(name):
 def get_db_by_channel_source(channel,source,instrument_id):
     kwargs = {'source':source,'instrument_id':instrument_id}
     db_class = get_db_by_name(channel)
-    return db_class(kwargs=kwargs)
+    return db_class(**kwargs)
 
