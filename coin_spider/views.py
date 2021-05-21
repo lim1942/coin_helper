@@ -18,6 +18,9 @@ class DataExportView(APIView):
         serializer.is_valid(raise_exception=True)
         channel = serializer.data['channel']
         instrument_id = serializer.data['instrument_id']
+        crypto_margined = serializer.data['crypto_margined']
+        if channel.endswith('swap') and crypto_margined:
+            instrument_id = instrument_id.replace('-USDT','-USD')
         start = serializer.data['start']
         end = serializer.data['end']
         source = serializer.data['source']
@@ -25,7 +28,9 @@ class DataExportView(APIView):
         try:
             result = db.query_csv(instrument_id,start,end)
             resp = StreamingHttpResponse(result)
-            resp["Content-Disposition"] = f'attachment; filename={"_".join([source,channel,instrument_id])}.csv'
+            start_str = start.strftime('%Y%m%d%H%M%S')
+            end_str = end.strftime('%Y%m%d%H%M%S')
+            resp["Content-Disposition"] = f'attachment; filename={"_".join([channel,instrument_id,start_str,end_str])}.csv'
             resp["Access-Control-Expose-Headers"] = "Content-Disposition"
             return resp
         except Exception as e:

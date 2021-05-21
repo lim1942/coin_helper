@@ -17,6 +17,7 @@ def get_instrument_id_choices():
 class DataExportSerializer(serializers.Serializer):
     channel = serializers.ChoiceField(label="数据类型",choices=get_channel_choices())
     instrument_id = serializers.ChoiceField(label='币对名',choices=get_instrument_id_choices(),help_text="历史k线只支持前9个币种的导出")
+    crypto_margined = serializers.BooleanField(label="使用币本位",default=False,help_text="暂时只对永续合约的数据有效")
     start = serializers.DateTimeField(label='开始时间',format=None)
     end = serializers.DateTimeField(label='结束时间',format=None)
     source = serializers.CharField(label='数据源',initial='okex')
