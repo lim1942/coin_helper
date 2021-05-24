@@ -11,7 +11,7 @@ from coin_spider.spiders.base import InstrumentIdSpider
 class OkexKlineHistorySpider(InstrumentIdSpider):
     batch_cnt = 300
     granularity = 60
-    interval_days = 5
+    interval_days = 1
     start_end_hours = (batch_cnt * granularity) / 3600
     instrument_ids = ["BTC-USDT", "ETH-USDT", "LTC-USDT", "ETC-USDT", "XRP-USDT", "EOS-USDT", "BCH-USDT", "BSV-USDT", "TRX-USDT",]
 
