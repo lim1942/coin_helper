@@ -100,6 +100,10 @@ class OkexWebsocket(BaseWebsocket):
 class BaseSpider(metaclass=ImportDbMeta):
     db = None
     timeout = 3
+    proxies = {
+        'http':'http://localhost:3080',
+        'https':'http://localhost:3080'
+    }
 
     def __init__(self,**kwargs):
         self.kwargs = kwargs
@@ -111,7 +115,7 @@ class BaseSpider(metaclass=ImportDbMeta):
 
     @classmethod
     def download(cls,url,meth='get',**kwargs):
-        resp = requests.request(meth,url=url,timeout=cls.timeout,**kwargs)
+        resp = requests.request(meth,url=url,timeout=cls.timeout,proxies=cls.proxies,**kwargs)
         resp.encoding = 'utf-8'
         return resp
 

@@ -1,6 +1,5 @@
 import aiohttp
 import asyncio
-aiohttp
 
 async def main():
 
@@ -12,6 +11,5 @@ async def main():
 
             html = await response.text()
             print("Body:", html[:15], "...")
-
 loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
+c = asyncio.run_coroutine_threadsafe(main(),loop)

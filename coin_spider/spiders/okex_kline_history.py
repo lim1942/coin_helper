@@ -11,14 +11,14 @@ from coin_spider.spiders.base import InstrumentIdSpider
 class OkexKlineHistorySpider(InstrumentIdSpider):
     batch_cnt = 300
     granularity = 60
-    interval_days = 1
+    interval_days = 5
     start_end_hours = (batch_cnt * granularity) / 3600
     instrument_ids = ["BTC-USDT", "ETH-USDT", "LTC-USDT", "ETC-USDT", "XRP-USDT", "EOS-USDT", "BCH-USDT", "BSV-USDT", "TRX-USDT",]
 
     def crawl(self):
         start = datetime.now() - timedelta(hours=TZ_HOUR)
         finally_end = start - timedelta(days=self.interval_days)
-        url = f'https://www.okex.win/api/spot/v3/instruments/{self.instrument_id}/history/candles'
+        url = f'https://www.okex.com/api/spot/v3/instruments/{self.instrument_id}/history/candles'
         while True:
             try:
                 end = start - timedelta(hours=self.start_end_hours)
