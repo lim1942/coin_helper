@@ -6,7 +6,7 @@ class OkexTradeSwapMysql(DateSplitMysql):
     # 插入
     insert_fields = ('side','trade_id','price','size','instrument_id','timestamp')
     insert_sql = f"""INSERT IGNORE INTO table_name({','.join(insert_fields)}) VALUES({','.join(('%s' for _ in insert_fields))});"""
-    insert_fields_date = [('timestamp','%Y-%m-%dT%H:%M:%S.%fZ',TZ_HOUR)]
+    insert_fields_date = []
     insert_fields_multiple = ['price','size']
     insert_split_field_index = 5
     # 查询

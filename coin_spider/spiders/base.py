@@ -1,11 +1,7 @@
 import sys
 import ssl
 import time
-import hmac
 import json
-import zlib
-import base64
-import hashlib
 import requests
 import websocket
 websocket.enableTrace(True)
@@ -63,29 +59,14 @@ class OkexWebsocket(BaseWebsocket):
     message_cnt = 0
     on_open_message = None
     okex_monitor = OkexMonitor()
-    url = "wss://real.okex.com:8443/ws/v3"
+    url = "wss://ws.okex.com:8443/ws/v5/public"
 
     def subscribe(self):
         open_msg = {"op": "subscribe", "args": self.on_open_message}
         self.ws.send(json.dumps(open_msg).encode())
 
-    def login(self,key,passphrase,secret):
-        timestamp = str(time.time())
-        msg = timestamp + "GET" + "/users/self/verify"
-        sign = hmac.new(secret.encode('utf-8'), msg.encode('utf-8'), digestmod=hashlib.sha256).digest()
-        sign = base64.b64encode(sign).decode('utf-8')
-        data = {"op": "login", "args":[key, passphrase, timestamp, sign]}
-        self.ws.send(data)
-
     def on_open(self,ws):
         self.subscribe()
-
-    def on_message(self,ws,message):
-        self.message_cnt += 1
-        decompress = zlib.decompressobj(-zlib.MAX_WBITS)
-        inflated = decompress.decompress(message)
-        inflated += decompress.flush()
-        return json.loads(inflated.decode())
 
     def run(self):
         while 1:
