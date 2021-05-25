@@ -75,6 +75,7 @@ class OkexWebsocket(BaseWebsocket):
                 self.ws.run_forever(**self.run_kwargs)
             except:
                 traceback.print_exc()
+                logger('spider',self.__class__.__name__,'run','error',json.dumps(traceback.format_exc()))
                 time.sleep(3)
 
 
