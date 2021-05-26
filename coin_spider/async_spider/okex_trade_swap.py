@@ -1,5 +1,8 @@
+import os
+import sys
 import asyncio
 from datetime import datetime
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from coin_spider.async_spider.base import BaseWS
 
 class OkexTrade(BaseWS):
